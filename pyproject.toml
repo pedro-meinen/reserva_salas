@@ -1,0 +1,28 @@
+[project]
+name = "reserva-salas"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "pedro_meinen", email = "pedromeinen99@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[all]>=0.115.8",
+    "sqlmodel>=0.0.22",
+]
+
+[project.scripts]
+reserva-salas = "reserva_salas:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "nox>=2025.2.9",
+    "pytest>=8.3.4",
+    "ruff>=0.9.6",
+]
