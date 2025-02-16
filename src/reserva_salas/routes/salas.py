@@ -13,7 +13,7 @@ async def obter_salas(
     skip: int = 0,
     count: int = 10,
     session: Session = Depends(get_session),
-) -> Sequence[Sala]:    
+) -> Sequence[Sala]:
     return session.exec(select(Sala).offset(skip).limit(count)).all()
 
 

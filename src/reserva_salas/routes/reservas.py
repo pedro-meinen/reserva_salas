@@ -13,8 +13,10 @@ async def obter_reservas(
     skip: int = 0,
     count: int = 10,
     session: Session = Depends(get_session),
-) -> Sequence[tuple[Reserva, Sala]]:    
-    return session.exec(select(Reserva, Sala).join(Sala).offset(skip).limit(count)).all()
+) -> Sequence[tuple[Reserva, Sala]]:
+    return session.exec(
+        select(Reserva, Sala).join(Sala).offset(skip).limit(count)
+    ).all()
 
 
 @router.get("/reserva/{id}")
@@ -22,7 +24,9 @@ async def obter_reserva(
     id: int,
     session: Session = Depends(get_session),
 ) -> tuple[Reserva, Sala]:
-    reserva = session.exec(select(Reserva, Sala).where(Reserva.id == id).join(Sala)).first()
+    reserva = session.exec(
+        select(Reserva, Sala).where(Reserva.id == id).join(Sala)
+    ).first()
 
     if not reserva:
         raise HTTPException(404, "Reserva nao foi encontrado")
