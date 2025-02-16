@@ -9,12 +9,19 @@ router = APIRouter(prefix="/api/v1", tags=["Salas"])
 
 
 @router.get("/sala")
-async def obter_salas(session: Session = Depends(get_session)) -> Sequence[Sala]:
-    return session.exec(select(Sala)).all()
+async def obter_salas(
+    skip: int = 0,
+    count: int = 10,
+    session: Session = Depends(get_session),
+) -> Sequence[Sala]:    
+    return session.exec(select(Sala).offset(skip).limit(count)).all()
 
 
 @router.get("/sala/{id}")
-async def obter_sala(id: int, session: Session = Depends(get_session)) -> Sala:
+async def obter_sala(
+    id: int,
+    session: Session = Depends(get_session),
+) -> Sala:
     sala = session.exec(select(Sala).where(Sala.id == id)).first()
 
     if not sala:
@@ -24,7 +31,10 @@ async def obter_sala(id: int, session: Session = Depends(get_session)) -> Sala:
 
 
 @router.post("/sala")
-async def criar_sala(sala: Sala, session: Session = Depends(get_session)) -> Sala:
+async def criar_sala(
+    sala: Sala,
+    session: Session = Depends(get_session),
+) -> Sala:
     session.add(sala)
     session.commit()
     session.refresh(sala)
@@ -32,8 +42,12 @@ async def criar_sala(sala: Sala, session: Session = Depends(get_session)) -> Sal
     return sala
 
 
-@router.put("/sala/{id}")
-async def editar_sala(id: int, sala: Sala, session: Session = Depends(get_session)) -> Sala:
+@router.patch("/sala/{id}")
+async def editar_sala(
+    id: int,
+    sala: Sala,
+    session: Session = Depends(get_session),
+) -> Sala:
     sala_antiga = session.exec(select(Sala).where(Sala.id == id)).first()
 
     if not sala_antiga:
@@ -49,7 +63,10 @@ async def editar_sala(id: int, sala: Sala, session: Session = Depends(get_sessio
 
 
 @router.delete("/sala/{id}")
-async def deletar_sala(id: int, session: Session = Depends(get_session)) -> Sala:
+async def deletar_sala(
+    id: int,
+    session: Session = Depends(get_session),
+) -> Sala:
     sala = session.exec(select(Sala).where(Sala.id == id)).first()
 
     if not sala:
