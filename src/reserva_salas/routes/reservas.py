@@ -1,9 +1,10 @@
 from typing import Sequence
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import select, Session
 
-from ..models import Reserva, Sala
+from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import Session, select
+
 from ..database import get_session
+from ..models import Reserva, Sala
 
 router = APIRouter(prefix="/api/v1", tags=["Reservas"])
 
@@ -13,25 +14,36 @@ async def obter_reservas(
     skip: int = 0,
     count: int = 10,
     session: Session = Depends(get_session),
-) -> Sequence[tuple[Reserva, Sala]]:
-    return session.exec(
-        select(Reserva, Sala).join(Sala).offset(skip).limit(count)
-    ).all()
+) -> Sequence[Reserva]:
+    return session.exec(select(Reserva).offset(skip).limit(count)).all()
 
 
 @router.get("/reserva/{id}")
 async def obter_reserva(
     id: int,
     session: Session = Depends(get_session),
-) -> tuple[Reserva, Sala]:
-    reserva = session.exec(
-        select(Reserva, Sala).where(Reserva.id == id).join(Sala)
-    ).first()
+) -> Reserva:
+    reserva = session.exec(select(Reserva).where(Reserva.id == id).join(Sala)).first()
 
     if not reserva:
         raise HTTPException(404, "Reserva nao foi encontrado")
 
     return reserva
+
+
+@router.get("/reserva/usuario/{username}")
+async def obter_reservas_por_usuario(
+    username: str,
+    skip: int = 0,
+    count: int = 10,
+    session: Session = Depends(get_session),
+) -> Sequence[Reserva]:
+    return session.exec(
+        select(Reserva)
+        .where(Reserva.reservado_por == username)
+        .offset(skip)
+        .limit(count)
+    ).all()
 
 
 @router.post("/reserva")

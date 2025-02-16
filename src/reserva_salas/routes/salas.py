@@ -1,9 +1,10 @@
 from typing import Sequence
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import select, Session
 
-from ..models import Sala
+from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import Session, select
+
 from ..database import get_session
+from ..models import Sala
 
 router = APIRouter(prefix="/api/v1", tags=["Salas"])
 

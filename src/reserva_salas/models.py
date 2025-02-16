@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlmodel import SQLModel, Field  # type: ignore
+from sqlmodel import Field, SQLModel  # type: ignore
 
 
 class Sala(SQLModel, table=True):
