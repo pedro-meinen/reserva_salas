@@ -5,17 +5,17 @@ from sqlmodel import SQLModel, Field # type: ignore
 
 class Sala(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    nome: str
-    capacidade: int
+    nome: str = Field(max_length=50)
+    capacidade: int = Field(gt=0)
 
 
 class Reserva(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    reservado_por: str
+    reservado_por: str = Field(max_length=50)
     sala_reservada: int = Field(foreign_key="sala.id")
     data_inicial: datetime
     data_final: datetime
-    descricao: str
-    tipo_evento: str
-    quantidade_pessoas: str
-    items: str
+    descricao: str = Field(max_length=256)
+    tipo_evento: str = Field(max_length=50)
+    quantidade_pessoas: int
+    items: str = Field(max_length=25, nullable=True)

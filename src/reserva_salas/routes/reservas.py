@@ -49,7 +49,7 @@ async def editar_reserva(id: int, reserva: Reserva, session: Session = Depends(g
 
 
 @router.delete("/reserva/{id}")
-async def deletae_reserva(id: int, session: Session = Depends(get_session)) -> Reserva:
+async def deletar_reserva(id: int, session: Session = Depends(get_session)) -> Reserva:
     reserva = session.exec(select(Reserva).where(Reserva.id == id)).first()
 
     if not reserva:

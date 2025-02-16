@@ -49,7 +49,7 @@ async def editar_sala(id: int, sala: Sala, session: Session = Depends(get_sessio
 
 
 @router.delete("/sala/{id}")
-async def deletae_sala(id: int, session: Session = Depends(get_session)) -> Sala:
+async def deletar_sala(id: int, session: Session = Depends(get_session)) -> Sala:
     sala = session.exec(select(Sala).where(Sala.id == id)).first()
 
     if not sala:
