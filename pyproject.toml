@@ -5,7 +5,13 @@ description = "Uma API para um sistema de reserva de salas!"
 readme = "README.md"
 authors = [{ name = "pedro_meinen", email = "pedromeinen99@gmail.com" }]
 requires-python = ">=3.13"
-dependencies = ["alembic>=1.14.1", "fastapi[all]>=0.115.8", "sqlmodel>=0.0.22"]
+dependencies = [
+    "alembic>=1.14.1",
+    "fastapi[all]>=0.115.8",
+    "passlib>=1.7.4",
+    "python-jose[cryptography]>=3.3.0",
+    "sqlmodel>=0.0.22",
+]
 
 [project.scripts]
 reserva-salas = "reserva_salas:main"

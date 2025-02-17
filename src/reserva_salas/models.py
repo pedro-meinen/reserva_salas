@@ -4,6 +4,21 @@ from typing import Optional
 from sqlmodel import Field, SQLModel  # type: ignore
 
 
+class Usuario(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    usuario: str = Field(max_length=50, nullable=False)
+    email: str = Field(max_length=100, unique=True, nullable=False)
+    senha: str = Field(max_length=100, nullable=False)
+
+
+class Token(SQLModel, table=True):
+    id_usuario: int
+    access_token: str = Field(max_length=450, primary_key=True)
+    refresh_token: str = Field(max_length=350, nullable=False)
+    status: bool
+    data_criacao: datetime = Field(default=datetime.now)
+
+
 class Sala(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     nome: str = Field(max_length=50)

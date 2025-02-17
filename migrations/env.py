@@ -6,6 +6,7 @@ from sqlmodel import SQLModel
 
 from reserva_salas.models import Reserva as Reserva
 from reserva_salas.models import Sala as Sala
+from reserva_salas.models import Usuario as Usuario
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -66,7 +67,9 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection, target_metadata=target_metadata
+        )
 
         with context.begin_transaction():
             context.run_migrations()
