@@ -21,4 +21,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv]
-dev-dependencies = ["mypy>=1.15.0", "pytest>=8.3.4"]
+dev-dependencies = [
+    "mypy>=1.15.0",
+    "pytest>=8.3.4",
+    "types-passlib>=1.7.7.20241221",
+    "types-python-jose>=3.3.4.20240106",
+]
