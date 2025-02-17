@@ -1,7 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
-from reserva_salas.database import SQLModel
+from src.database import SQLModel
 from sqlalchemy import engine_from_config, pool
 
 # this is the Alembic Config object, which provides
