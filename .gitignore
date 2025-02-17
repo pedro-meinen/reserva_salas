@@ -11,3 +11,4 @@ wheels/
 
 # Arquivos do gerenciamento do banco de dados
 *.db
+*.patch

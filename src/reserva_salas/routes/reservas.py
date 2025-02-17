@@ -23,7 +23,9 @@ async def obter_reserva(
     id: int,
     session: Session = Depends(get_session),
 ) -> Reserva:
-    reserva = session.exec(select(Reserva).where(Reserva.id == id).join(Sala)).first()
+    reserva = session.exec(
+        select(Reserva).where(Reserva.id == id).join(Sala)
+    ).first()
 
     if not reserva:
         raise HTTPException(404, "Reserva nao foi encontrado")
@@ -64,7 +66,9 @@ async def editar_reserva(
     reserva: Reserva,
     session: Session = Depends(get_session),
 ) -> Reserva:
-    reserva_antiga = session.exec(select(Reserva).where(Reserva.id == id)).first()
+    reserva_antiga = session.exec(
+        select(Reserva).where(Reserva.id == id)
+    ).first()
 
     if not reserva_antiga:
         raise HTTPException(404, "Reserva nao foi encontrado")
