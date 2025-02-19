@@ -9,6 +9,6 @@ wheels/
 # Virtual environments
 .venv
 
-# Arquivos do gerenciamento do banco de dados
 *.db
 *.patch
+.env
