@@ -13,8 +13,14 @@ from ..auth import (
 )
 from ..bearer import JWTBearer, token_required
 from ..database import get_session
-from ..models import Reserva, Token, Usuario
-from ..schemas import ChangePassword, RequestData, TokenSchema
+from ..models import Reserva, Sala, Token, Usuario
+from ..schemas import (
+    ChangePassword,
+    RequestData,
+    Resposta,
+    TokenSchema,
+    mensagem,
+)
 from ..settings import ALGORITHM, JWT_SECRET_KEY
 
 router = APIRouter(prefix="/api/v1/usuarios", tags=["Usuarios"])
@@ -57,10 +63,11 @@ async def obter_reservas_por_usuario(
     count: int = 10,
     dependencies: JWTBearer = Depends(JWTBearer()),
     session: Session = Depends(get_session),
-) -> Sequence[Reserva]:
+) -> Sequence[tuple[Reserva, Sala]]:
     return session.exec(
-        select(Reserva)
+        select(Reserva, Sala)
         .where(Reserva.reservado_por == username)
+        .join(Sala)
         .offset(skip)
         .limit(count)
     ).all()
@@ -69,7 +76,7 @@ async def obter_reservas_por_usuario(
 @router.post("/registrar")
 async def registrar_usuario(
     usuario: Usuario, session: Session = Depends(get_session)
-):
+) -> Resposta:
     usuario_existente = session.exec(
         select(Usuario).where(Usuario.email == usuario.email)
     ).first()
@@ -88,11 +95,13 @@ async def registrar_usuario(
     session.commit()
     session.refresh(usuario)
 
-    return {"mensagem": "Usuario registrado com sucesso!"}
+    return mensagem("Usuario registrado com sucesso!")
 
 
 @router.post("/login", response_model=TokenSchema)
-async def login(request: RequestData, session: Session = Depends(get_session)):
+async def login(
+    request: RequestData, session: Session = Depends(get_session)
+) -> dict[str, str]:
     usuario = session.exec(
         select(Usuario).where(Usuario.email == request.email)
     ).first()
@@ -131,7 +140,7 @@ async def login(request: RequestData, session: Session = Depends(get_session)):
 async def logout(
     dependencies: str | bytes = Depends(JWTBearer()),
     session: Session = Depends(get_session),
-):
+) -> Resposta:
     token = dependencies
     payload = jwt.decode(token, JWT_SECRET_KEY, ALGORITHM)
     user_id = int(payload["sub"])
@@ -160,7 +169,7 @@ async def logout(
         session.add(existing_token)
         session.commit()
         session.refresh(existing_token)
-    return {"message": "Logout Successfully"}
+    return mensagem("Logout bem sucessido")
 
 
 @router.post("/alterar-senha")
@@ -186,4 +195,4 @@ async def alterar_senha(
     user.senha = encrypted_password
     session.commit()
 
-    return {"mensagem": "Senha alterada com sucesso!"}
+    return mensagem("Senha alterada com sucesso!")

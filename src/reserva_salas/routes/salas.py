@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Sequence
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -5,7 +6,8 @@ from sqlmodel import Session, select
 
 from ..bearer import JWTBearer, token_required
 from ..database import get_session
-from ..models import Sala
+from ..models import Reserva, Sala
+from ..schemas import Resposta, mensagem
 
 router = APIRouter(prefix="/api/v1/salas", tags=["Salas"])
 
@@ -19,6 +21,39 @@ async def obter_salas(
     session: Session = Depends(get_session),
 ) -> Sequence[Sala]:
     return session.exec(select(Sala).offset(skip).limit(count)).all()
+
+
+@router.get("/disponiveis")
+@token_required
+async def obter_salas_disponiveis(
+    data_inicial: datetime,
+    data_final: datetime,
+    dependencies: JWTBearer = Depends(JWTBearer()),
+    session: Session = Depends(get_session),
+) -> Sequence[tuple[int, Sala]] | Resposta:
+    salas = session.exec(
+        select(Reserva.sala_reservada, Sala)
+        .where(
+            (
+                data_inicial < Reserva.data_final
+                and data_inicial >= Reserva.data_inicial
+            )
+            or (
+                data_final <= Reserva.data_final
+                and data_final > Reserva.data_inicial
+            )
+            or (
+                data_final >= Reserva.data_final
+                and data_inicial <= Reserva.data_inicial
+            )
+        )
+        .join(Sala)
+    ).all()
+
+    if not salas:
+        return mensagem("Nenhuma sala disponivel")
+
+    return salas
 
 
 @router.get("/{id}")
@@ -78,7 +113,7 @@ async def deletar_sala(
     id: int,
     dependencies: JWTBearer = Depends(JWTBearer()),
     session: Session = Depends(get_session),
-):
+) -> Resposta:
     sala = session.exec(select(Sala).where(Sala.id == id)).first()
 
     if not sala:
@@ -87,4 +122,4 @@ async def deletar_sala(
     session.delete(sala)
     session.commit()
 
-    return {"mensagem": "Sala deletada com sucesso"}
+    return mensagem("Sala deletada com sucesso")
