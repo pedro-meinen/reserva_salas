@@ -55,18 +55,27 @@ async def obter_usuarios_expecifico(
     return usuario
 
 
-@router.get("/{username}/reservas")
+@router.get("/reservas")
 @token_required
 async def obter_reservas_por_usuario(
-    username: str,
     skip: int = 0,
     count: int = 10,
     dependencies: JWTBearer = Depends(JWTBearer()),
     session: Session = Depends(get_session),
 ) -> Sequence[tuple[Reserva, Sala]]:
+    usuario = session.exec(
+        select(Token.id_usuario).where(Token.access_token == dependencies)
+    ).first()
+
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Você não possui permissão para realizar essa operação",
+        )
+
     return session.exec(
         select(Reserva, Sala)
-        .where(Reserva.reservado_por == username)
+        .where(Reserva.reservado_por == usuario)
         .join(Sala)
         .offset(skip)
         .limit(count)

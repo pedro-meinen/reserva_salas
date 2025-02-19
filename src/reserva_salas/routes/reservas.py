@@ -1,11 +1,11 @@
 from typing import Sequence
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
 from ..bearer import JWTBearer, token_required
 from ..database import get_session
-from ..models import Reserva, Sala
+from ..models import Reserva, Sala, Token, Usuario
 from ..schemas import Resposta, mensagem
 
 router = APIRouter(prefix="/api/v1/reservas", tags=["Reservas"])
@@ -18,9 +18,13 @@ async def obter_reservas(
     count: int = 10,
     dependencies: JWTBearer = Depends(JWTBearer()),
     session: Session = Depends(get_session),
-) -> Sequence[tuple[Reserva, Sala]]:
+) -> Sequence[tuple[Reserva, Sala, str]]:
     return session.exec(
-        select(Reserva, Sala).join(Sala).offset(skip).limit(count)
+        select(Reserva, Sala, Usuario.email)
+        .join(Sala)
+        .join(Usuario)
+        .offset(skip)
+        .limit(count)
     ).all()
 
 
@@ -30,9 +34,12 @@ async def obter_reserva(
     id: int,
     dependencies: JWTBearer = Depends(JWTBearer()),
     session: Session = Depends(get_session),
-) -> tuple[Reserva, Sala]:
+) -> tuple[Reserva, Sala, str]:
     reserva = session.exec(
-        select(Reserva, Sala).where(Reserva.id == id).join(Sala)
+        select(Reserva, Sala, Usuario.email)
+        .where(Reserva.id == id)
+        .join(Sala)
+        .join(Usuario)
     ).first()
 
     if not reserva:
@@ -45,9 +52,21 @@ async def obter_reserva(
 @token_required
 async def criar_reserva(
     reserva: Reserva,
-    dependencies: JWTBearer = Depends(JWTBearer()),
+    dependencies: str | bytes = Depends(JWTBearer()),
     session: Session = Depends(get_session),
 ) -> Reserva:
+    usuario = session.exec(
+        select(Token.id_usuario).where(Token.access_token == dependencies)
+    ).first()
+
+    if not usuario:
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED,
+            detail="Você não possui autorização para realizar essa operação",
+        )
+
+    reserva.reservado_por = usuario
+
     session.add(reserva)
     session.commit()
     session.refresh(reserva)

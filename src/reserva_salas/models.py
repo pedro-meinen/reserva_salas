@@ -7,7 +7,7 @@ from sqlmodel import Field, SQLModel  # type: ignore
 class Usuario(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     usuario: str = Field(max_length=50, nullable=False)
-    email: str = Field(max_length=100, unique=True, nullable=False)
+    email: str = Field(max_length=100, unique=True, nullable=False, index=True)
     senha: str = Field(max_length=100, nullable=False)
 
 
@@ -27,8 +27,8 @@ class Sala(SQLModel, table=True):
 
 class Reserva(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    reservado_por: str = Field(max_length=50)
-    sala_reservada: int = Field(foreign_key="sala.id")
+    reservado_por: Optional[int] = Field(default=None, foreign_key="usuario.id")
+    sala_reservada: int = Field(foreign_key="sala.id", nullable=False)
     data_inicial: datetime
     data_final: datetime
     descricao: str = Field(max_length=256)
