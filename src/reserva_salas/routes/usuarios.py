@@ -1,9 +1,9 @@
-from datetime import datetime, timezone
 from typing import Sequence
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from jose import jwt
 from sqlmodel import Session, select
+from whenever import Instant
 
 from ..auth import (
     create_access_token,
@@ -128,8 +128,8 @@ async def login(
             detail="Senha errada",
         )
 
-    access = create_access_token(usuario.id)
-    refresh = create_refresh_token(usuario.id)
+    access = create_access_token(str(usuario.id))
+    refresh = create_refresh_token(str(usuario.id))
 
     token = Token(
         id_usuario=usuario.id,  # type: ignore
@@ -157,7 +157,7 @@ async def logout(
     info: list[int] = []
     for record in token_record:
         print("record", record)
-        if (datetime.now(timezone.utc) - record.data_criacao).days > 1:
+        if (Instant.now().py_datetime() - record.data_criacao).days > 1:
             info.append(record.id_usuario)
     if info:
         existing_token = session.exec(

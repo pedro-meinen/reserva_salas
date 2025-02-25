@@ -61,7 +61,7 @@ async def criar_reserva(
 
     if not usuario:
         raise HTTPException(
-            status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Você não possui autorização para realizar essa operação",
         )
 
