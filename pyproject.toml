@@ -1,10 +1,10 @@
 [project]
 name = "reserva-salas"
-version = "0.1.0"
 description = "Uma API para um sistema de reserva de salas!"
 readme = "README.md"
 authors = [{ name = "pedro_meinen", email = "pedromeinen99@gmail.com" }]
 requires-python = ">=3.12"
+dynamic = ['version']
 dependencies = [
     "alembic>=1.14.1",
     "environs>=14.1.1",
@@ -29,3 +29,6 @@ dev-dependencies = [
     "types-passlib>=1.7.7.20241221",
     "types-python-jose>=3.3.4.20240106",
 ]
+
+[tool.hatch.version]
+path = 'src/reserva_salas/__init__.py'

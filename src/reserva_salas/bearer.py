@@ -12,9 +12,9 @@ from reserva_salas.models import Token
 from .settings import ALGORITHM, JWT_SECRET_KEY
 
 
-def decode_JWT(jwtoken: str):
+def decode_jwt(jwt_token: str):
     try:
-        payload = jwt.decode(jwtoken, JWT_SECRET_KEY, ALGORITHM)
+        payload = jwt.decode(jwt_token, JWT_SECRET_KEY, ALGORITHM)
         return payload
     except JWTError:
         return None
@@ -24,13 +24,13 @@ class JWTBearer(HTTPBearer):
     def __init__(
         self,
         *,
-        bearerFormat: str | None = None,
+        bearer_format: str | None = None,
         scheme_name: str | None = None,
         description: str | None = None,
         auto_error: bool = True,
     ):
         super(JWTBearer, self).__init__(
-            bearerFormat=bearerFormat,
+            bearerFormat=bearer_format,
             scheme_name=scheme_name,
             description=description,
             auto_error=auto_error,
@@ -58,17 +58,17 @@ class JWTBearer(HTTPBearer):
                 detail="Invalid authorization code.",
             )
 
-    def verify_jwt(self, jwtoken: str) -> bool:
-        isTokenValid = False
+    def verify_jwt(self, jwt_token: str) -> bool:
+        is_token_valid = False
 
         try:
-            payload = decode_JWT(jwtoken)
+            payload = decode_jwt(jwt_token)
         except Exception:
             payload = None
         if payload:
-            isTokenValid = True
+            is_token_valid = True
 
-        return isTokenValid
+        return is_token_valid
 
 
 def token_required(func: Callable[..., Any]):

@@ -4,7 +4,7 @@ Revision ID: ff6f1dbde8bd
 Revises: 4fa82975ba25
 Create Date: 2025-02-19 13:49:09.876672
 
-"""
+"""  # noqa: E501
 
 from typing import Sequence, Union
 

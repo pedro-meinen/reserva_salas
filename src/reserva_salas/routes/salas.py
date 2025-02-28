@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Sequence
+from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
@@ -15,10 +15,10 @@ router = APIRouter(prefix="/api/v1/salas", tags=["Salas"])
 @router.get("/")
 @token_required
 async def obter_salas(
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    session: Annotated[Session, Depends(get_session)],
     skip: int = 0,
     count: int = 10,
-    dependencies: JWTBearer = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
 ) -> Sequence[Sala]:
     return session.exec(select(Sala).offset(skip).limit(count)).all()
 
@@ -28,8 +28,8 @@ async def obter_salas(
 async def obter_salas_disponiveis(
     data_inicial: datetime,
     data_final: datetime,
-    dependencies: JWTBearer = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    session: Annotated[Session, Depends(get_session)],
 ) -> Sequence[tuple[int, Sala]] | Resposta:
     salas = session.exec(
         select(Reserva.sala_reservada, Sala)
@@ -51,7 +51,7 @@ async def obter_salas_disponiveis(
     ).all()
 
     if not salas:
-        return mensagem("Nenhuma sala disponivel")
+        return mensagem("Nenhuma sala disponível")
 
     return salas
 
@@ -60,8 +60,8 @@ async def obter_salas_disponiveis(
 @token_required
 async def obter_sala(
     id: int,
-    dependencies: JWTBearer = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    session: Annotated[Session, Depends(get_session)],
 ) -> Sala:
     sala = session.exec(select(Sala).where(Sala.id == id)).first()
 
@@ -75,8 +75,8 @@ async def obter_sala(
 @token_required
 async def criar_sala(
     sala: Sala,
-    dependencies: JWTBearer = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    session: Annotated[Session, Depends(get_session)],
 ) -> Sala:
     session.add(sala)
     session.commit()
@@ -90,8 +90,8 @@ async def criar_sala(
 async def editar_sala(
     id: int,
     sala: Sala,
-    dependencies: JWTBearer = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    session: Annotated[Session, Depends(get_session)],
 ) -> Sala:
     sala_antiga = session.exec(select(Sala).where(Sala.id == id)).first()
 
@@ -111,8 +111,8 @@ async def editar_sala(
 @token_required
 async def deletar_sala(
     id: int,
-    dependencies: JWTBearer = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    session: Annotated[Session, Depends(get_session)],
 ) -> Resposta:
     sala = session.exec(select(Sala).where(Sala.id == id)).first()
 

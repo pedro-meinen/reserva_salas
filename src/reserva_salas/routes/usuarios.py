@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from jose import jwt
@@ -29,18 +29,18 @@ router = APIRouter(prefix="/api/v1/usuarios", tags=["Usuarios"])
 @router.get("/")
 @token_required
 async def obter_usuarios(
-    dependencies: JWTBearer = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    session: Annotated[Session, Depends(get_session)],
 ) -> Sequence[Usuario]:
     return session.exec(select(Usuario)).all()
 
 
 @router.get("/{username}")
 @token_required
-async def obter_usuarios_expecifico(
+async def obter_usuarios_especifico(
     username: str,
-    dependencies: JWTBearer = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    session: Annotated[Session, Depends(get_session)],
 ) -> Usuario:
     usuario = session.exec(
         select(Usuario).where(username == Usuario.email)
@@ -58,10 +58,10 @@ async def obter_usuarios_expecifico(
 @router.get("/reservas")
 @token_required
 async def obter_reservas_por_usuario(
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    session: Annotated[Session, Depends(get_session)],
     skip: int = 0,
     count: int = 10,
-    dependencies: JWTBearer = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
 ) -> Sequence[tuple[Reserva, Sala]]:
     usuario = session.exec(
         select(Token.id_usuario).where(Token.access_token == dependencies)
@@ -84,7 +84,7 @@ async def obter_reservas_por_usuario(
 
 @router.post("/registrar")
 async def registrar_usuario(
-    usuario: Usuario, session: Session = Depends(get_session)
+    usuario: Usuario, session: Annotated[Session, Depends(get_session)]
 ) -> Resposta:
     usuario_existente = session.exec(
         select(Usuario).where(Usuario.email == usuario.email)
@@ -109,7 +109,7 @@ async def registrar_usuario(
 
 @router.post("/login", response_model=TokenSchema)
 async def login(
-    request: RequestData, session: Session = Depends(get_session)
+    request: RequestData, session: Annotated[Session, Depends(get_session)]
 ) -> dict[str, str]:
     usuario = session.exec(
         select(Usuario).where(Usuario.email == request.email)
@@ -117,15 +117,13 @@ async def login(
 
     if usuario is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Email errado",
+            status_code=status.HTTP_404_NOT_FOUND, detail="Email errado"
         )
 
     hashed_password = usuario.senha
     if not verify_password(request.senha, hashed_password):
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Senha errada",
+            status_code=status.HTTP_404_NOT_FOUND, detail="Senha errada"
         )
 
     access = create_access_token(str(usuario.id))
@@ -147,8 +145,8 @@ async def login(
 
 @router.post("/logout")
 async def logout(
-    dependencies: str | bytes = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
+    dependencies: Annotated[str | bytes, Depends(JWTBearer())],
+    session: Annotated[Session, Depends(get_session)],
 ) -> Resposta:
     token = dependencies
     payload = jwt.decode(token, JWT_SECRET_KEY, ALGORITHM)
@@ -168,8 +166,7 @@ async def logout(
 
     existing_token = session.exec(
         select(Token).where(
-            Token.id_usuario == user_id,
-            Token.access_token == token,
+            Token.id_usuario == user_id, Token.access_token == token
         )
     ).first()
 
@@ -178,12 +175,12 @@ async def logout(
         session.add(existing_token)
         session.commit()
         session.refresh(existing_token)
-    return mensagem("Logout bem sucessido")
+    return mensagem("Logout bem sucedido")
 
 
 @router.post("/alterar-senha")
 async def alterar_senha(
-    request: ChangePassword, session: Session = Depends(get_session)
+    request: ChangePassword, session: Annotated[Session, Depends(get_session)]
 ):
     user = session.exec(
         select(Usuario).where(Usuario.email == request.email)

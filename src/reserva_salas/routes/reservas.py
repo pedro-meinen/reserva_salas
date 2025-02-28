@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
@@ -14,10 +14,10 @@ router = APIRouter(prefix="/api/v1/reservas", tags=["Reservas"])
 @router.get("/")
 @token_required
 async def obter_reservas(
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    session: Annotated[Session, Depends(get_session)],
     skip: int = 0,
     count: int = 10,
-    dependencies: JWTBearer = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
 ) -> Sequence[tuple[Reserva, Sala, str]]:
     return session.exec(
         select(Reserva, Sala, Usuario.email)
@@ -32,8 +32,8 @@ async def obter_reservas(
 @token_required
 async def obter_reserva(
     id: int,
-    dependencies: JWTBearer = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    session: Annotated[Session, Depends(get_session)],
 ) -> tuple[Reserva, Sala, str]:
     reserva = session.exec(
         select(Reserva, Sala, Usuario.email)
@@ -52,8 +52,8 @@ async def obter_reserva(
 @token_required
 async def criar_reserva(
     reserva: Reserva,
-    dependencies: str | bytes = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
+    dependencies: Annotated[str | bytes, Depends(JWTBearer)],
+    session: Annotated[Session, Depends(get_session)],
 ) -> Reserva:
     usuario = session.exec(
         select(Token.id_usuario).where(Token.access_token == dependencies)
@@ -79,8 +79,8 @@ async def criar_reserva(
 async def editar_reserva(
     id: int,
     reserva: Reserva,
-    dependencies: JWTBearer = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    session: Annotated[Session, Depends(get_session)],
 ) -> Reserva:
     reserva_antiga = session.exec(
         select(Reserva).where(Reserva.id == id)
@@ -102,8 +102,8 @@ async def editar_reserva(
 @token_required
 async def deletar_reserva(
     id: int,
-    dependencies: JWTBearer = Depends(JWTBearer()),
-    session: Session = Depends(get_session),
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    session: Annotated[Session, Depends(get_session)],
 ) -> Resposta:
     reserva = session.exec(select(Reserva).where(Reserva.id == id)).first()
 
