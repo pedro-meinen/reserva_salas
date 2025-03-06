@@ -1,4 +1,5 @@
-from typing import Annotated, Sequence
+from collections.abc import Sequence
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
@@ -14,7 +15,7 @@ router = APIRouter(prefix="/api/v1/reservas", tags=["Reservas"])
 @router.get("/")
 @token_required
 async def obter_reservas(
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
     skip: int = 0,
     count: int = 10,
@@ -28,16 +29,16 @@ async def obter_reservas(
     ).all()
 
 
-@router.get("/{id}")
+@router.get("/{id_reserva}")
 @token_required
 async def obter_reserva(
-    id: int,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    id_reserva: int,
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> tuple[Reserva, Sala, str]:
     reserva = session.exec(
         select(Reserva, Sala, Usuario.email)
-        .where(Reserva.id == id)
+        .where(Reserva.id == id_reserva)
         .join(Sala)
         .join(Usuario)
     ).first()
@@ -52,7 +53,7 @@ async def obter_reserva(
 @token_required
 async def criar_reserva(
     reserva: Reserva,
-    dependencies: Annotated[str | bytes, Depends(JWTBearer)],
+    dependencies: Annotated[str | bytes, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Reserva:
     usuario = session.exec(
@@ -74,22 +75,22 @@ async def criar_reserva(
     return reserva
 
 
-@router.patch("/{id}")
+@router.patch("/{id_reserva}")
 @token_required
 async def editar_reserva(
-    id: int,
+    id_reserva: int,
     reserva: Reserva,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Reserva:
     reserva_antiga = session.exec(
-        select(Reserva).where(Reserva.id == id)
+        select(Reserva).where(Reserva.id == id_reserva)
     ).first()
 
     if not reserva_antiga:
         raise HTTPException(404, "Reserva nao foi encontrado")
 
-    reserva.id = reserva_antiga.id
+    reserva.id_reserva = reserva_antiga.id
 
     session.add(reserva)
     session.commit()
@@ -98,14 +99,16 @@ async def editar_reserva(
     return reserva
 
 
-@router.delete("/{id}")
+@router.delete("/{id_reserva}")
 @token_required
 async def deletar_reserva(
-    id: int,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    id_reserva: int,
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Resposta:
-    reserva = session.exec(select(Reserva).where(Reserva.id == id)).first()
+    reserva = session.exec(
+        select(Reserva).where(Reserva.id == id_reserva)
+    ).first()
 
     if not reserva:
         raise HTTPException(404, "Reserva nao foi encontrada")

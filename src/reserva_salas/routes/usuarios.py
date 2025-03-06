@@ -1,4 +1,5 @@
-from typing import Annotated, Sequence
+from collections.abc import Sequence
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from jose import jwt
@@ -29,7 +30,7 @@ router = APIRouter(prefix="/api/v1/usuarios", tags=["Usuarios"])
 @router.get("/")
 @token_required
 async def obter_usuarios(
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Sequence[Usuario]:
     return session.exec(select(Usuario)).all()
@@ -39,7 +40,7 @@ async def obter_usuarios(
 @token_required
 async def obter_usuarios_especifico(
     username: str,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Usuario:
     usuario = session.exec(
@@ -58,7 +59,7 @@ async def obter_usuarios_especifico(
 @router.get("/reservas")
 @token_required
 async def obter_reservas_por_usuario(
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
     skip: int = 0,
     count: int = 10,
@@ -152,11 +153,11 @@ async def logout(
     payload = jwt.decode(token, JWT_SECRET_KEY, ALGORITHM)
     user_id = int(payload["sub"])
     token_record = session.exec(select(Token)).all()
-    info: list[int] = []
-    for record in token_record:
-        print("record", record)
-        if (Instant.now().py_datetime() - record.data_criacao).days > 1:
-            info.append(record.id_usuario)
+    info = [
+        record.id_usuario
+        for record in token_record
+        if (Instant.now().py_datetime() - record.data_criacao).days > 1
+    ]
     if info:
         existing_token = session.exec(
             select(Token).where(Token.id_usuario in info)

@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Annotated, Sequence
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/api/v1/salas", tags=["Salas"])
 @router.get("/")
 @token_required
 async def obter_salas(
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
     skip: int = 0,
     count: int = 10,
@@ -28,7 +29,7 @@ async def obter_salas(
 async def obter_salas_disponiveis(
     data_inicial: datetime,
     data_final: datetime,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Sequence[tuple[int, Sala]] | Resposta:
     salas = session.exec(
@@ -56,14 +57,14 @@ async def obter_salas_disponiveis(
     return salas
 
 
-@router.get("/{id}")
+@router.get("/{id_sala}")
 @token_required
 async def obter_sala(
-    id: int,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    id_sala: int,
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Sala:
-    sala = session.exec(select(Sala).where(Sala.id == id)).first()
+    sala = session.exec(select(Sala).where(Sala.id == id_sala)).first()
 
     if not sala:
         raise HTTPException(404, "Sala nao foi encontrado")
@@ -75,7 +76,7 @@ async def obter_sala(
 @token_required
 async def criar_sala(
     sala: Sala,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Sala:
     session.add(sala)
@@ -85,15 +86,15 @@ async def criar_sala(
     return sala
 
 
-@router.patch("/{id}")
+@router.patch("/{id_sala}")
 @token_required
 async def editar_sala(
-    id: int,
+    id_sala: int,
     sala: Sala,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Sala:
-    sala_antiga = session.exec(select(Sala).where(Sala.id == id)).first()
+    sala_antiga = session.exec(select(Sala).where(Sala.id == id_sala)).first()
 
     if not sala_antiga:
         raise HTTPException(404, "Sala nao foi encontrado")
@@ -107,14 +108,14 @@ async def editar_sala(
     return sala
 
 
-@router.delete("/{id}")
+@router.delete("/{id_sala}")
 @token_required
 async def deletar_sala(
-    id: int,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer)],
+    id_sala: int,
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Resposta:
-    sala = session.exec(select(Sala).where(Sala.id == id)).first()
+    sala = session.exec(select(Sala).where(Sala.id == id_sala)).first()
 
     if not sala:
         raise HTTPException(404, "Sala nao foi encontrada")

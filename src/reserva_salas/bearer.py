@@ -7,15 +7,13 @@ from jose import jwt
 from jose.exceptions import JWTError
 from sqlmodel import select
 
-from reserva_salas.models import Token
-
+from .models import Token
 from .settings import ALGORITHM, JWT_SECRET_KEY
 
 
 def decode_jwt(jwt_token: str):
     try:
-        payload = jwt.decode(jwt_token, JWT_SECRET_KEY, ALGORITHM)
-        return payload
+        return jwt.decode(jwt_token, JWT_SECRET_KEY, ALGORITHM)
     except JWTError:
         return None
 
@@ -29,7 +27,7 @@ class JWTBearer(HTTPBearer):
         description: str | None = None,
         auto_error: bool = True,
     ):
-        super(JWTBearer, self).__init__(
+        super().__init__(
             bearerFormat=bearer_format,
             scheme_name=scheme_name,
             description=description,
@@ -37,7 +35,7 @@ class JWTBearer(HTTPBearer):
         )
 
     async def __call__(self, request: Request) -> HTTPAuthorizationCredentials:
-        credentials = await super(JWTBearer, self).__call__(request)
+        credentials = await super().__call__(request)
 
         if credentials:
             if not credentials.scheme == "Bearer":
@@ -52,11 +50,10 @@ class JWTBearer(HTTPBearer):
                 )
 
             return credentials
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Invalid authorization code.",
-            )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid authorization code.",
+        )
 
     def verify_jwt(self, jwt_token: str) -> bool:
         is_token_valid = False
@@ -90,7 +87,6 @@ def token_required(func: Callable[..., Any]):
         if data:
             return func(kwargs["dependencies"], kwargs["session"])
 
-        else:
-            return {"mensagem": "Token Bloqueado"}
+        return {"mensagem": "Token Bloqueado"}
 
     return wrapper

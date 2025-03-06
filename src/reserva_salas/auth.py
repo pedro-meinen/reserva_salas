@@ -37,9 +37,7 @@ def create_access_token(
         "exp": expires_date.py_datetime(),
         "sub": subject,
     }
-    encoded_jwt = jwt.encode(to_encode, JWT_SECRET_KEY, ALGORITHM)
-
-    return encoded_jwt
+    return jwt.encode(to_encode, JWT_SECRET_KEY, ALGORITHM)
 
 
 def create_refresh_token(
@@ -54,5 +52,4 @@ def create_refresh_token(
         "exp": expires_date.py_datetime(),
         "sub": subject,
     }
-    encoded_jwt = jwt.encode(to_encode, JWT_REFRESH_SECRET_KEY, ALGORITHM)
-    return encoded_jwt
+    return jwt.encode(to_encode, JWT_REFRESH_SECRET_KEY, ALGORITHM)
