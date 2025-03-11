@@ -65,7 +65,7 @@ async def obter_reservas_por_usuario(
     count: int = 10,
 ) -> Sequence[tuple[Reserva, Sala]]:
     usuario = session.exec(
-        select(Token.id_usuario).where(Token.access_token == dependencies)
+        select(Token.id_usuario).where(Token.access_token == str(dependencies))
     ).first()
 
     if not usuario:
@@ -131,7 +131,7 @@ async def login(
     refresh = create_refresh_token(str(usuario.id))
 
     token = Token(
-        id_usuario=usuario.id,  # type: ignore
+        id_usuario=usuario.id or 0,
         access_token=access,
         refresh_token=refresh,
         status=True,
@@ -146,10 +146,10 @@ async def login(
 
 @router.post("/logout")
 async def logout(
-    dependencies: Annotated[str | bytes, Depends(JWTBearer())],
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Resposta:
-    token = dependencies
+    token = str(dependencies)
     payload = jwt.decode(token, JWT_SECRET_KEY, ALGORITHM)
     user_id = int(payload["sub"])
     token_record = session.exec(select(Token)).all()
@@ -182,7 +182,7 @@ async def logout(
 @router.post("/alterar-senha")
 async def alterar_senha(
     request: ChangePassword, session: Annotated[Session, Depends(get_session)]
-):
+) -> Resposta:
     user = session.exec(
         select(Usuario).where(Usuario.email == request.email)
     ).first()

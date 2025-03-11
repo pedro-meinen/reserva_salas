@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlmodel import Field, SQLModel  # type: ignore
+from sqlmodel import Field, SQLModel
 
 
 class Usuario(SQLModel, table=True):

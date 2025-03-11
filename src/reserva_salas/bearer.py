@@ -1,17 +1,17 @@
 from functools import wraps
-from typing import Any, Callable
+from typing import Callable
 
 from fastapi import HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt
 from jose.exceptions import JWTError
-from sqlmodel import select
+from sqlmodel import Session, select
 
 from .models import Token
 from .settings import ALGORITHM, JWT_SECRET_KEY
 
 
-def decode_jwt(jwt_token: str):
+def decode_jwt(jwt_token: str) -> dict[str, str] | None:
     try:
         return jwt.decode(jwt_token, JWT_SECRET_KEY, ALGORITHM)
     except JWTError:
@@ -26,7 +26,7 @@ class JWTBearer(HTTPBearer):
         scheme_name: str | None = None,
         description: str | None = None,
         auto_error: bool = True,
-    ):
+    ) -> None:
         super().__init__(
             bearerFormat=bearer_format,
             scheme_name=scheme_name,
@@ -68,24 +68,32 @@ class JWTBearer(HTTPBearer):
         return is_token_valid
 
 
-def token_required(func: Callable[..., Any]):
+def token_required[**P, R](
+    func: Callable[P, R],
+) -> Callable[P, R | dict[str, str]]:
     @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any):
-        payload = jwt.decode(kwargs["dependencies"], JWT_SECRET_KEY, ALGORITHM)
-        user_id = payload["sub"]
-        data = (
-            kwargs["session"]
-            .exec(
-                select(Token).filter_by(
-                    user_id=user_id,
-                    access_toke=kwargs["dependencies"],
-                    status=True,
-                )
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R | dict[str, str]:
+        dependencies: str = str(kwargs["dependencies"])
+
+        if isinstance(kwargs["session"], Session):
+            session = kwargs["session"]
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Sessão do banco de dados não foi definida",
             )
-            .first()
-        )
+
+        payload = jwt.decode(dependencies, JWT_SECRET_KEY, ALGORITHM)
+        user_id = payload["sub"]
+        data = session.exec(
+            select(Token).where(
+                Token.id_usuario == user_id,
+                Token.access_token == dependencies,
+                Token.status,
+            )
+        ).first()
         if data:
-            return func(kwargs["dependencies"], kwargs["session"])
+            return func(*args, **kwargs)
 
         return {"mensagem": "Token Bloqueado"}
 

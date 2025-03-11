@@ -1,5 +1,4 @@
-from datetime import datetime
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from jose import jwt
 from passlib.context import CryptContext
@@ -12,6 +11,9 @@ from .settings import (
     JWT_SECRET_KEY,
     REFRESH_TOKEN_EXPIRE_MINUTES,
 )
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
