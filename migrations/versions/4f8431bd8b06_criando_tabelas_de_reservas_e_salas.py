@@ -6,7 +6,8 @@ Create Date: 2025-02-16 09:27:03.573810
 
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
+from typing import Union
 
 import sqlalchemy as sa
 from alembic import op
@@ -38,10 +39,7 @@ def upgrade() -> None:
         sa.Column("tipo_evento", sa.String(50), nullable=False),
         sa.Column("quantidade_pessoas", sa.Integer(), nullable=False),
         sa.Column("items", sa.String(25), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["sala_reservada"],
-            ["sala.id"],
-        ),
+        sa.ForeignKeyConstraint(["sala_reservada"], ["sala.id"]),
         sa.PrimaryKeyConstraint("id"),
     )
     # ### end Alembic commands ###
