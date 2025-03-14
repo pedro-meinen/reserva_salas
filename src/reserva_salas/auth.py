@@ -1,11 +1,10 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from jose import jwt
 from passlib.context import CryptContext
 from whenever import Instant, minutes
 
 from .settings import (
-    ACCESS_TOKEN_EXPIRE_MINUTES,
     ALGORITHM,
     JWT_REFRESH_SECRET_KEY,
     JWT_SECRET_KEY,
@@ -27,13 +26,9 @@ def verify_password(password: str, hashed_pass: str) -> bool:
 
 
 def create_access_token(
-    subject: str, expires_delta: Optional[int] = None
+    subject: str, expires_delta: int = REFRESH_TOKEN_EXPIRE_MINUTES
 ) -> str:
-    if expires_delta is not None:
-        expires_date = Instant.now() + minutes(expires_delta)
-
-    else:
-        expires_date = Instant.now() + minutes(ACCESS_TOKEN_EXPIRE_MINUTES)
+    expires_date = Instant.now() + minutes(expires_delta)
 
     to_encode: dict[str, datetime | str] = {
         "exp": expires_date.py_datetime(),
@@ -43,15 +38,13 @@ def create_access_token(
 
 
 def create_refresh_token(
-    subject: str, expires_delta: Optional[int] = None
+    subject: str, expires_delta: int = REFRESH_TOKEN_EXPIRE_MINUTES
 ) -> str:
-    if expires_delta is not None:
-        expires_date = Instant.now() + minutes(expires_delta)
-    else:
-        expires_date = Instant.now() + minutes(REFRESH_TOKEN_EXPIRE_MINUTES)
+    expires_date = Instant.now() + minutes(expires_delta)
 
     to_encode: dict[str, datetime | str] = {
         "exp": expires_date.py_datetime(),
         "sub": subject,
     }
+
     return jwt.encode(to_encode, JWT_REFRESH_SECRET_KEY, ALGORITHM)
