@@ -15,7 +15,7 @@ router = APIRouter(prefix="/api/v1/reservas", tags=["Reservas"])
 @router.get("/")
 @token_required
 async def obter_reservas(
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],  # noqa: ARG001
     session: Annotated[Session, Depends(get_session)],
     skip: int = 0,
     count: int = 10,
@@ -33,7 +33,7 @@ async def obter_reservas(
 @token_required
 async def obter_reserva(
     id_reserva: int,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],  # noqa: ARG001
     session: Annotated[Session, Depends(get_session)],
 ) -> tuple[Reserva, Sala, str]:
     reserva = session.exec(
@@ -80,7 +80,7 @@ async def criar_reserva(
 async def editar_reserva(
     id_reserva: int,
     reserva: Reserva,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],  # noqa: ARG001
     session: Annotated[Session, Depends(get_session)],
 ) -> Reserva:
     reserva_antiga = session.exec(
@@ -103,7 +103,7 @@ async def editar_reserva(
 @token_required
 async def deletar_reserva(
     id_reserva: int,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
+    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],  # noqa: ARG001
     session: Annotated[Session, Depends(get_session)],
 ) -> Resposta:
     reserva = session.exec(

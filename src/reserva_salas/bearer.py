@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from functools import wraps
-from typing import Callable
 
 from fastapi import HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -55,12 +55,12 @@ class JWTBearer(HTTPBearer):
             detail="Invalid authorization code.",
         )
 
-    def verify_jwt(self, jwt_token: str) -> bool:
+    def verify_jwt(self, jwt_token: str) -> bool:  # noqa: PLR6301
         is_token_valid = False
 
         try:
             payload = decode_jwt(jwt_token)
-        except Exception:
+        except JWTError:
             payload = None
         if payload:
             is_token_valid = True
