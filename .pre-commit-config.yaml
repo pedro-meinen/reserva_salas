@@ -3,7 +3,6 @@ repos:
     rev: 0.6.6
     hooks:
       - id: uv-lock
-      - id: uv-export
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.11.0
     hooks:
@@ -14,7 +13,7 @@ repos:
     rev: "v1.15.0"
     hooks:
       - id: mypy
-        args: [--ignore-missing-imports]
+        args: [--strict, --ignore-missing-imports]
         additional_dependencies:
           [
             types-passlib>=1.7.7.20241221,
