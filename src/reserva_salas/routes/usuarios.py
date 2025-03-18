@@ -30,7 +30,7 @@ router = APIRouter(prefix="/api/v1/usuarios", tags=["Usuarios"])
 @router.get("/")
 @token_required
 async def obter_usuarios(
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],  # noqa: ARG001
+    _dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Sequence[Usuario]:
     return session.exec(select(Usuario)).all()
@@ -40,7 +40,7 @@ async def obter_usuarios(
 @token_required
 async def obter_usuarios_especifico(
     username: str,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],  # noqa: ARG001
+    _dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Usuario:
     usuario = session.exec(

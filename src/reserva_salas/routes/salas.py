@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/v1/salas", tags=["Salas"])
 @router.get("/")
 @token_required
 async def obter_salas(
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],  # noqa: ARG001
+    _dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
     skip: int = 0,
     count: int = 10,
@@ -29,7 +29,7 @@ async def obter_salas(
 async def obter_salas_disponiveis(
     data_inicial: datetime,
     data_final: datetime,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],  # noqa: ARG001
+    _dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Sequence[tuple[int, Sala]] | Resposta:
     salas = session.exec(
@@ -61,7 +61,7 @@ async def obter_salas_disponiveis(
 @token_required
 async def obter_sala(
     id_sala: int,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],  # noqa: ARG001
+    _dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Sala:
     sala = session.exec(select(Sala).where(Sala.id == id_sala)).first()
@@ -76,7 +76,7 @@ async def obter_sala(
 @token_required
 async def criar_sala(
     sala: Sala,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],  # noqa: ARG001
+    _dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Sala:
     session.add(sala)
@@ -91,7 +91,7 @@ async def criar_sala(
 async def editar_sala(
     id_sala: int,
     sala: Sala,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],  # noqa: ARG001
+    _dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Sala:
     sala_antiga = session.exec(select(Sala).where(Sala.id == id_sala)).first()
@@ -112,7 +112,7 @@ async def editar_sala(
 @token_required
 async def deletar_sala(
     id_sala: int,
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],  # noqa: ARG001
+    _dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
     session: Annotated[Session, Depends(get_session)],
 ) -> Resposta:
     sala = session.exec(select(Sala).where(Sala.id == id_sala)).first()

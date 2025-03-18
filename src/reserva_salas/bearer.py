@@ -55,7 +55,8 @@ class JWTBearer(HTTPBearer):
             detail="Invalid authorization code.",
         )
 
-    def verify_jwt(self, jwt_token: str) -> bool:  # noqa: PLR6301
+    @staticmethod
+    def verify_jwt(jwt_token: str) -> bool:
         is_token_valid = False
 
         try:
@@ -73,7 +74,7 @@ def token_required[**P, R](
 ) -> Callable[P, R | dict[str, str]]:
     @wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R | dict[str, str]:
-        dependencies: str = str(kwargs["dependencies"])
+        dependencies = str(kwargs["_dependencies"])
 
         if isinstance(kwargs["session"], Session):
             session = kwargs["session"]
