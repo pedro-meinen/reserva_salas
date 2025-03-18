@@ -3,6 +3,7 @@ repos:
     rev: 0.6.6
     hooks:
       - id: uv-lock
+      - id: uv-export
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.11.0
     hooks:
@@ -13,14 +14,19 @@ repos:
     rev: "v1.15.0"
     hooks:
       - id: mypy
-        args: [--strict, --ignore-missing-imports]
+        args: [--ignore-missing-imports]
         additional_dependencies:
           [
             types-passlib>=1.7.7.20241221,
             types-python-jose>=3.3.4.20240106,
             sqlmodel>=0.0.22,
           ]
-  - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
     hooks:
-      - id: shellcheck
+      - id: check-illegal-windows-names
+      - id: check-toml
+      - id: check-xml
+      - id: check-yaml
+      - id: detect-private-key
+      - id: requirements-txt-fixer

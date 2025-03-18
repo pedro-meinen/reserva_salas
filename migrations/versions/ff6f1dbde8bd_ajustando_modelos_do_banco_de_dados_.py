@@ -4,19 +4,18 @@ Revision ID: ff6f1dbde8bd
 Revises: 4fa82975ba25
 Create Date: 2025-02-19 13:49:09.876672
 
-"""  # noqa: E501
+"""
 
 from collections.abc import Sequence
-from typing import Union
 
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "ff6f1dbde8bd"
-down_revision: Union[str, None] = "4fa82975ba25"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = "4fa82975ba25"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:

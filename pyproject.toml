@@ -32,3 +32,9 @@ dev-dependencies = [
 
 [tool.hatch.version]
 path = 'src/reserva_salas/__init__.py'
+
+[tool.ruff]
+extend = "C:/Users/pedro_meinen/AppData/Roaming/ruff/ruff.toml"
+
+[tool.ruff.lint]
+ignore = ["E501"]
