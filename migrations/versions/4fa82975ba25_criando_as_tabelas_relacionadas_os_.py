@@ -1,4 +1,5 @@
-"""Criando as tabelas relacionadas os usuarios e aos tokens
+"""
+Criando as tabelas relacionadas os usuarios e aos tokens.
 
 Revision ID: 4fa82975ba25
 Revises: 4f8431bd8b06

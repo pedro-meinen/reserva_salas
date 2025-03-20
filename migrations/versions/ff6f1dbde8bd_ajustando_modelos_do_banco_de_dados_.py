@@ -1,4 +1,5 @@
-"""Ajustando modelos do banco de dados para alterar a forma como os endpoints buscam os dados
+"""
+Ajustando modelos para alterar a forma como os endpoints buscam os dados.
 
 Revision ID: ff6f1dbde8bd
 Revises: 4fa82975ba25

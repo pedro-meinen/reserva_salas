@@ -4,18 +4,17 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
-from ..bearer import JWTBearer, token_required
-from ..database import get_session
-from ..models import Reserva, Sala, Token, Usuario
-from ..schemas import Resposta, mensagem
+from src.auth import TokenPayload, auth
+from src.database import get_session
+from src.models import Reserva, Sala, Usuario
+from src.schemas import Resposta, mensagem
 
 router = APIRouter(prefix="/api/v1/reservas", tags=["Reservas"])
 
 
 @router.get("/")
-@token_required
 async def obter_reservas(
-    _dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
+    _dependencies: Annotated[TokenPayload, Depends(auth.access_token_required)],
     session: Annotated[Session, Depends(get_session)],
     skip: int = 0,
     count: int = 10,
@@ -30,10 +29,9 @@ async def obter_reservas(
 
 
 @router.get("/{id_reserva}")
-@token_required
 async def obter_reserva(
     id_reserva: int,
-    _dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
+    _dependencies: Annotated[TokenPayload, Depends(auth.access_token_required)],
     session: Annotated[Session, Depends(get_session)],
 ) -> tuple[Reserva, Sala, str]:
     reserva = session.exec(
@@ -50,15 +48,12 @@ async def obter_reserva(
 
 
 @router.post("/")
-@token_required
 async def criar_reserva(
     reserva: Reserva,
-    dependencies: Annotated[str | bytes, Depends(JWTBearer())],
+    dependencies: Annotated[TokenPayload, Depends(auth.access_token_required)],
     session: Annotated[Session, Depends(get_session)],
 ) -> Reserva:
-    usuario = session.exec(
-        select(Token.id_usuario).where(Token.access_token == dependencies)
-    ).first()
+    usuario = int(dependencies.sub)
 
     if not usuario:
         raise HTTPException(
@@ -76,11 +71,10 @@ async def criar_reserva(
 
 
 @router.patch("/{id_reserva}")
-@token_required
 async def editar_reserva(
     id_reserva: int,
     reserva: Reserva,
-    _dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
+    _dependencies: Annotated[TokenPayload, Depends(auth.access_token_required)],
     session: Annotated[Session, Depends(get_session)],
 ) -> Reserva:
     reserva_antiga = session.exec(
@@ -100,10 +94,9 @@ async def editar_reserva(
 
 
 @router.delete("/{id_reserva}")
-@token_required
 async def deletar_reserva(
     id_reserva: int,
-    _dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
+    _dependencies: Annotated[TokenPayload, Depends(auth.access_token_required)],
     session: Annotated[Session, Depends(get_session)],
 ) -> Resposta:
     reserva = session.exec(

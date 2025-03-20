@@ -10,14 +10,6 @@ class Usuario(SQLModel, table=True):
     senha: str
 
 
-class Token(SQLModel, table=True):
-    id_usuario: int
-    access_token: str = Field(primary_key=True)
-    refresh_token: str
-    status: bool
-    data_criacao: datetime = Field(default=datetime.now)
-
-
 class Sala(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     nome: str

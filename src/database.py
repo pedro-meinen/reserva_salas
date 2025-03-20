@@ -1,10 +1,14 @@
 from collections.abc import Generator
 
+from environs import env
 from sqlmodel import Session, create_engine
 from sqlmodel import SQLModel as SQLModel
 
-from . import models as models
-from .settings import DATABASE_URI
+import models as models
+
+env.read_env(".env")
+
+DATABASE_URI = env.str("DATABASE_URI")
 
 engine = create_engine(DATABASE_URI)
 

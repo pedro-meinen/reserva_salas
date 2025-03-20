@@ -1,4 +1,5 @@
-"""Criando tabelas de reservas e salas
+"""
+Criando tabelas de reservas e salas.
 
 Revision ID: 4f8431bd8b06
 Revises:

@@ -2,45 +2,34 @@ from collections.abc import Sequence
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from jose import jwt
 from sqlmodel import Session, select
-from whenever import Instant
 
-from ..auth import (
-    create_access_token,
-    create_refresh_token,
+from src.auth import (
+    AuthXDependency,
+    TokenPayload,
+    auth,
     get_hashed_password,
     verify_password,
 )
-from ..bearer import JWTBearer, token_required
-from ..database import get_session
-from ..models import Reserva, Sala, Token, Usuario
-from ..schemas import (
-    ChangePassword,
-    RequestData,
-    Resposta,
-    TokenSchema,
-    mensagem,
-)
-from ..settings import ALGORITHM, JWT_SECRET_KEY
+from src.database import get_session
+from src.models import Reserva, Sala, Usuario
+from src.schemas import ChangePassword, LoginData, Resposta, mensagem
 
 router = APIRouter(prefix="/api/v1/usuarios", tags=["Usuarios"])
 
 
 @router.get("/")
-@token_required
 async def obter_usuarios(
-    _dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
+    _dependencies: Annotated[TokenPayload, Depends(auth.access_token_required)],
     session: Annotated[Session, Depends(get_session)],
 ) -> Sequence[Usuario]:
     return session.exec(select(Usuario)).all()
 
 
 @router.get("/{username}")
-@token_required
 async def obter_usuarios_especifico(
     username: str,
-    _dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
+    _dependencies: Annotated[TokenPayload, Depends(auth.access_token_required)],
     session: Annotated[Session, Depends(get_session)],
 ) -> Usuario:
     usuario = session.exec(
@@ -57,18 +46,15 @@ async def obter_usuarios_especifico(
 
 
 @router.get("/reservas")
-@token_required
 async def obter_reservas_por_usuario(
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
+    dependencies: Annotated[TokenPayload, Depends(auth.access_token_required)],
     session: Annotated[Session, Depends(get_session)],
     skip: int = 0,
     count: int = 10,
 ) -> Sequence[tuple[Reserva, Sala]]:
-    usuario = session.exec(
-        select(Token.id_usuario).where(Token.access_token == str(dependencies))
-    ).first()
+    usuario = int(dependencies.sub)
 
-    if not usuario:
+    if usuario is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Você não possui permissão para realizar essa operação",
@@ -87,19 +73,15 @@ async def obter_reservas_por_usuario(
 async def registrar_usuario(
     usuario: Usuario, session: Annotated[Session, Depends(get_session)]
 ) -> Resposta:
-    usuario_existente = session.exec(
+    if session.exec(
         select(Usuario).where(Usuario.email == usuario.email)
-    ).first()
-
-    if usuario_existente:
+    ).first():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Usuario já registrado",
         )
 
-    encrypt_password = get_hashed_password(usuario.senha)
-
-    usuario.senha = encrypt_password
+    usuario.senha = get_hashed_password(usuario.senha)
 
     session.add(usuario)
     session.commit()
@@ -108,12 +90,14 @@ async def registrar_usuario(
     return mensagem("Usuario registrado com sucesso!")
 
 
-@router.post("/login", response_model=TokenSchema)
+@router.post("/login")
 async def login(
-    request: RequestData, session: Annotated[Session, Depends(get_session)]
-) -> dict[str, str]:
+    data: LoginData,
+    deps: Annotated[AuthXDependency, Depends(auth.get_dependency)],
+    session: Annotated[Session, Depends(get_session)],
+) -> Resposta:
     usuario = session.exec(
-        select(Usuario).where(Usuario.email == request.email)
+        select(Usuario).where(Usuario.email == data.email)
     ).first()
 
     if usuario is None:
@@ -121,61 +105,21 @@ async def login(
             status_code=status.HTTP_404_NOT_FOUND, detail="Email errado"
         )
 
-    hashed_password = usuario.senha
-    if not verify_password(request.senha, hashed_password):
+    if not verify_password(data.senha, usuario.senha):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Senha errada"
         )
 
-    access = create_access_token(str(usuario.id))
-    refresh = create_refresh_token(str(usuario.id))
-
-    token = Token(
-        id_usuario=usuario.id or 0,
-        access_token=access,
-        refresh_token=refresh,
-        status=True,
-    )
-
-    session.add(token)
-    session.commit()
-    session.refresh(token)
-
-    return {"access_token": access, "refresh_token": refresh}
+    token = deps.create_access_token(str(usuario.id))
+    deps.set_access_cookies(token)
+    return mensagem("Login bem sucedido")
 
 
 @router.post("/logout")
 async def logout(
-    dependencies: Annotated[JWTBearer, Depends(JWTBearer())],
-    session: Annotated[Session, Depends(get_session)],
+    deps: Annotated[AuthXDependency, Depends(auth.get_dependency)],
 ) -> Resposta:
-    token = str(dependencies)
-    payload = jwt.decode(token, JWT_SECRET_KEY, ALGORITHM)
-    user_id = int(payload["sub"])
-    token_record = session.exec(select(Token)).all()
-    info = [
-        record.id_usuario
-        for record in token_record
-        if (Instant.now().py_datetime() - record.data_criacao).days > 1
-    ]
-    if info:
-        existing_token = session.exec(
-            select(Token).where(Token.id_usuario in info)
-        ).first()
-        session.delete(existing_token)
-        session.commit()
-
-    existing_token = session.exec(
-        select(Token).where(
-            Token.id_usuario == user_id, Token.access_token == token
-        )
-    ).first()
-
-    if existing_token:
-        existing_token.status = False
-        session.add(existing_token)
-        session.commit()
-        session.refresh(existing_token)
+    deps.unset_access_cookies()
     return mensagem("Logout bem sucedido")
 
 

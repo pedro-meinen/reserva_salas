@@ -6,14 +6,9 @@ class Resposta(BaseModel):
     payload: str | bytes
 
 
-class RequestData(BaseModel):
+class LoginData(BaseModel):
     email: str
     senha: str
-
-
-class TokenSchema(BaseModel):
-    access_token: str
-    refresh_token: str
 
 
 class ChangePassword(BaseModel):
