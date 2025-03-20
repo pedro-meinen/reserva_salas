@@ -11,22 +11,17 @@ repos:
         args: [--fix]
       - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.15.0"
+    rev: v1.15.0
     hooks:
       - id: mypy
         args: [--ignore-missing-imports]
         additional_dependencies:
-          [
-            types-passlib>=1.7.7.20241221,
-            types-python-jose>=3.3.4.20240106,
-            sqlmodel>=0.0.22,
-          ]
+          [types-passlib>=1.7.7.20241221, sqlmodel>=0.0.22]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
       - id: check-illegal-windows-names
       - id: check-toml
-      - id: check-xml
       - id: check-yaml
       - id: detect-private-key
       - id: requirements-txt-fixer
