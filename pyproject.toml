@@ -10,6 +10,7 @@ dependencies = [
     "authx>=1.4.1",
     "environs>=14.1.1",
     "fastapi-cache2[redis]>=0.2.2",
+    "fastapi-profiler>=1.4.1",
     "fastapi[all]>=0.115.8",
     "passlib>=1.7.4",
     "sqlmodel>=0.0.22",

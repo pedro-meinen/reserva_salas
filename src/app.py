@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from fastapi_profiler import PyInstrumentProfilerMiddleware
 from redis import asyncio as aioredis
 
 from src.admin import admin
@@ -22,9 +23,12 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:  # noqa: RUF029
 
 
 app = FastAPI(lifespan=lifespan)
+
 app.include_router(router_reservas)
 app.include_router(router_salas)
 app.include_router(router_usuarios)
+
+app.add_middleware(PyInstrumentProfilerMiddleware)
 
 auth.handle_errors(app)
 
