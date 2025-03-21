@@ -1,0 +1,8 @@
+*.db
+justfile
+README.md
+nginx/
+.vscode/
+mypy_cache/
+ruff_cache/
+requirements.txt
