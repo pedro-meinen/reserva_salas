@@ -786,6 +786,7 @@ dependencies = [
     { name = "fastapi", extra = ["all"] },
     { name = "passlib" },
     { name = "sqlmodel" },
+    { name = "starlette-admin" },
     { name = "whenever" },
 ]
 
@@ -804,6 +805,7 @@ requires-dist = [
     { name = "fastapi", extras = ["all"], specifier = ">=0.115.8" },
     { name = "passlib", specifier = ">=1.7.4" },
     { name = "sqlmodel", specifier = ">=0.0.22" },
+    { name = "starlette-admin", specifier = ">=0.14.1" },
     { name = "whenever", specifier = ">=0.7.1" },
 ]
 
@@ -932,6 +934,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ff/fb/2984a686808b89a6781526129a4b51266f678b2d2b97ab2d325e56116df8/starlette-0.45.3.tar.gz", hash = "sha256:2cbcba2a75806f8a41c722141486f37c28e30a0921c5f6fe4346cb0dcee1302f", size = 2574076 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d9/61/f2b52e107b1fc8944b33ef56bf6ac4ebbe16d91b94d2b87ce013bf63fb84/starlette-0.45.3-py3-none-any.whl", hash = "sha256:dfb6d332576f136ec740296c7e8bb8c8a7125044e7c6da30744718880cdd059d", size = 71507 },
+]
+
+[[package]]
+name = "starlette-admin"
+version = "0.14.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "jinja2" },
+    { name = "python-multipart" },
+    { name = "starlette" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c0/6e/8468ace0ee826dc797c77c7076c5294f4abe78debabb8f8ab7c3e137f0b2/starlette_admin-0.14.1.tar.gz", hash = "sha256:45e2baa3b9a8deec7a6e8ca9295123f648bb0d2070abe68f27193c6d5e32cc38", size = 2099705 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bd/5a/ac9ab9846350b40d73539c9094bf447d7900c586e013011af2a9fe995676/starlette_admin-0.14.1-py3-none-any.whl", hash = "sha256:5b6260d7ed3db455585852d669feb7ed9a8c5f9a1e3d48d21a52912ec37e18f9", size = 2160522 },
 ]
 
 [[package]]

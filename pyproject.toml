@@ -12,6 +12,7 @@ dependencies = [
     "fastapi[all]>=0.115.8",
     "passlib>=1.7.4",
     "sqlmodel>=0.0.22",
+    "starlette-admin>=0.14.1",
     "whenever>=0.7.1",
 ]
 
