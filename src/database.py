@@ -4,7 +4,7 @@ from environs import env
 from sqlmodel import Session, create_engine
 from sqlmodel import SQLModel as SQLModel
 
-import models as models
+from src import models as models
 
 env.read_env(".env")
 
