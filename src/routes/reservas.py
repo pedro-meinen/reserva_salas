@@ -2,6 +2,7 @@ from collections.abc import Sequence
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_cache.decorator import cache
 from sqlmodel import Session, select
 
 from src.auth import TokenPayload, auth
@@ -29,6 +30,7 @@ async def obter_reservas(
 
 
 @router.get("/{id_reserva}")
+@cache()
 async def obter_reserva(
     id_reserva: int,
     _dependencies: Annotated[TokenPayload, Depends(auth.access_token_required)],
@@ -94,6 +96,7 @@ async def editar_reserva(
 
 
 @router.delete("/{id_reserva}")
+@cache()
 async def deletar_reserva(
     id_reserva: int,
     _dependencies: Annotated[TokenPayload, Depends(auth.access_token_required)],

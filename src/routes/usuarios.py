@@ -2,6 +2,7 @@ from collections.abc import Sequence
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_cache.decorator import cache
 from sqlmodel import Session, select
 
 from src.auth import (
@@ -27,6 +28,7 @@ async def obter_usuarios(
 
 
 @router.get("/{username}")
+@cache()
 async def obter_usuarios_especifico(
     username: str,
     _dependencies: Annotated[TokenPayload, Depends(auth.access_token_required)],

@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_cache.decorator import cache
 from sqlmodel import Session, select
 
 from src.auth import TokenPayload, auth
@@ -56,6 +57,7 @@ async def obter_salas_disponiveis(
 
 
 @router.get("/{id_sala}")
+@cache()
 async def obter_sala(
     id_sala: int,
     _dependencies: Annotated[TokenPayload, Depends(auth.access_token_required)],
@@ -104,6 +106,7 @@ async def editar_sala(
 
 
 @router.delete("/{id_sala}")
+@cache()
 async def deletar_sala(
     id_sala: int,
     _dependencies: Annotated[TokenPayload, Depends(auth.access_token_required)],
